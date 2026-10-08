@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+
+  <style>
+    @page {
+      size: A4;
+      margin: 0px 0px 10px 0px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      color: #000;
+    }
+
+    /* ================= WATERMARK ================= */
+    .paid-watermark {
+      position: fixed;
+      top: 40%;
+      left: 40%;
+      font-size: 90px;
+      color: red;
+      opacity: 0.15;
+      transform: rotate(-30deg);
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    /* ================= HEADER ================= */
+    .header {
+      background: #0f5ba7;
+      color: #fff;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 80px;
+    }
+
+    .logo img {
+      height: 50px;
+      max-width: 120px;
+      object-fit: contain;
+    }
+
+    .total-box {
+      background: #fff;
+      color: #0f5ba7;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-align: center;
+      justify-self: center;
+      min-width: 180px;
+      margin-left: auto;
+    }
+
+    .total-box div {
+      font-size: 13px;
+    }
+
+    .total-box strong {
+      font-size: 20px;
+    }
+
+    .invoice_header {
+      text-align: right;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* ================= BILLED SECTION ================= */
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .bill-left {
+      width: 50%;
+      font-size: 13px;
+    }
+
+    .bill-right {
+      width: 50%;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    /* ================= TEXT ================= */
+    h3 {
+      color: #0f5ba7;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 15px;
+      margin-bottom: 2px;
+    }
+
+    p {
+      margin: 4px 0;
+      font-size: 13px;
+    }
+
+    /* ================= TABLE ================= */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    th {
+      background: #1e87c8;
+      color: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+      white-space: nowrap;
+      word-break: keep-all;
+    }
+
+    td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f5f5f5;
+    }
+
+    td:nth-child(3),
+    td:nth-child(4),
+    td:nth-child(5),
+    td:nth-child(6),
+    td:nth-child(7) {
+      text-align: center;
+    }
+
+    td:last-child:not(.desc-col) {
+      text-align: right;
+      font-weight: bold;
+    }
+
+    /* Fix column width */
+    th:nth-child(5),
+    td:nth-child(5),
+    th:nth-child(6),
+    td:nth-child(6) {
+      width: 80px;
+    }
+
+    /* ================= SUMMARY ================= */
+    .summary {
+      width: 300px;
+      margin-left: auto;
+      margin-top: 30px;
+      background: #f0f0f0;
+      padding: 15px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .summary .row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    /* ================= PAYMENT ================= */
+    .payment-details {
+      margin-top: 30px;
+      background: #f8fafc;
+      padding: 15px;
+      border: 1px solid #ddd;
+      font-size: 13px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* ================= TERMS ================= */
+    .terms {
+      background: #f5f5f5;
+      padding-left: 15px;
+      font-size: 12px;
+      /* white-space: pre-line; */
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .terms-label {
+      display: block;
+      font-weight: bold;
+      color: #0f5ba7;
+      margin-bottom: 2px;
+      /* reduce gap */
+      line-height: 1.2;
+    }
+
+    .terms-text {
+      margin-top: 0;
+      white-space: pre-line;
+      padding-top: 0;
+      line-height: 1.4;
+    }
+
+    .page-content {
+      margin: 10px 20px 20px 20px;
+    }
+
+    .info {
+      margin: 2px 0;
+      line-height: 1.2
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PAID WATERMARK -->
+  <div class="paid-watermark {{PAID_CLASS}}">PAID</div>
+
+  <!-- ================= HEADER ================= -->
+  <div class="header">
+    <div style="display: flex; align-items: center; gap: 15px;">
+
+      <div class="logo">
+        <img src="{{LOGO}}" />
+      </div>
+
+      <div style="line-height: 1.5;">
+
+        <div style="font-size: 16px; font-weight: bold;">
+          {{COMPANY_NAME}}
+        </div>
+
+        <div style="font-size: 12px;">
+          {{COMPANY_ADDRESS}}
+        </div>
+
+        <div style="font-size: 12px;">
+          {{COMPANY_EMAIL}} | {{COMPANY_PHONE}}
+        </div>
+      </div>
+    </div>
+
+    <div class="total-box">
+      <div class="label" style="font-size: 16px; font-weight: bold; padding: 10px 0;">PAYMENT RECEIPT</div>
+    </div>
+  </div>
+
+  </div>
+  <div class="page-content">
+    <!-- ================= BILLED TO ================= -->
+    <div class="bill-row">
+      <div class="bill-left">
+        <h3>Contact Details</h3>
+        <p class="info">Contact Name : <b>{{NAME}}</b></p>
+        <p class="info">Company Name: <b>{{COMPANY}}</b></p>
+        <p class="info">Email: <b>{{EMAIL}}</b></p>
+      </div>
+
+      <div class="bill-right">
+        <h3>Payment Details</h3>
+        <p class="info">Date : <b>{{DATE}}</b></p>
+        <p class="info">Method : <b>{{METHOD}}</b></p>
+        <p class="info">Reference: <b>{{REFERENCE}}</b></p>
+        {{INVOICE_ROW}}
+      </div>
+    </div>
+
+    <!-- ================= LINE ITEMS ================= -->
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;">Description</th>
+          <th style="text-align:right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #ddd; background: #fff;">
+          <td style="padding: 15px 12px;">Payment Received{{NOTES}}</td>
+          <td style="padding: 15px 12px; text-align: right; font-weight: bold; font-size: 16px;">
+            {{PAID_AMOUNT}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,123 @@
+name: Deploy coylejax-backend to Stage EC2
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, coylejax]
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+    
+    - name: Deploy Backend
+      run: |
+        echo "Starting deployment on staging server..."
+
+        # Sync from runner workspace → target folder
+        rsync -av --delete \
+          --exclude ".env" \
+          --exclude "uploads/" \
+          --exclude ".git" \
+          --exclude ".github" \
+          ./ /home/ubuntu/staging/coylejax-backend/
+
+        cd /home/ubuntu/staging/coylejax-backend
+ 
+        npm install
+
+        sudo pm2 restart coylejax-api
+
+        sudo pm2 save
+        sudo pm2 ls
+
+        echo "Deployment completed!" 
+
+
+
+# name: Backend Staging Deployment with Docker Container
+
+# on:
+#   push:
+#     branches:
+#       - staging
+#   workflow_dispatch: 
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     permissions:
+#       contents: read
+#       packages: write
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Log in to GHCR
+#         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+#       - name: Set lowercase owner
+#         run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+#       - name: Build Docker image
+#         run: docker build -t ghcr.io/$OWNER/coylejax-backend:latest .
+
+#       - name: Push Docker image
+#         run: docker push ghcr.io/$OWNER/coylejax-backend:latest
+
+
+#   deploy:
+#     needs: build
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Deploy to EC2 via SSH
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ secrets.EC2_HOST }}
+#           username: ${{ secrets.EC2_USER }}
+#           key: ${{ secrets.EC2_SSH_KEY }}
+#           script: |
+#             echo "Logging into GHCR..."
+
+#             sudo docker login ghcr.io \
+#               -u ${{ github.repository_owner }} \
+#               -p ${{ secrets.GHCR_TOKEN }}
+
+#             echo "Pulling latest image..."
+#             sudo docker pull ghcr.io/4glaciers/coylejax-backend:latest
+
+#             echo "Stopping old container..."
+#             sudo docker stop coylejax-backend || true
+#             sudo docker rm coylejax-backend || true
+
+#             echo "Running new container..."
+#             sudo docker run -d \
+#               --name coylejax-backend \
+#               -p 3001:3001 \
+#               -v /home/ubuntu/staging/coylejax-backend/uploads:/app/uploads \
+#               --env-file /home/ubuntu/staging/coylejax-backend/.env \
+#               --restart always \
+#               ghcr.io/${{ github.repository_owner }}/coylejax-backend:latest
+
+#             echo "Waiting for container to initialize..."
+#             sleep 5
+
+#             echo "Checking container status..."
+#             if [ "$(sudo docker inspect -f '{{.State.Running}}' coylejax-backend)" != "true" ]; then
+#               echo "❌ Container failed to start"
+#               sudo docker logs coylejax-backend
+#               exit 1
+#             fi
+            
+#             echo "cleaning unused images"
+#             sudo docker image prune -f 
+
+#             echo "Deployment completed!"
+             
